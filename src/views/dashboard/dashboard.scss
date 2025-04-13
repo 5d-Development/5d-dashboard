@@ -1,0 +1,78 @@
+.employees {
+  .title {
+    h4 {
+      color: #110f49;
+    }
+    p {
+      font-size: 15px;
+    }
+  }
+  thead {
+    padding: 20px 0 !important;
+    th {
+      font-size: 14px;
+      color: rgb(37 43 54 / 68%);
+      font-weight: 600;
+    }
+  }
+
+  tbody {
+    td {
+      color: rgb(37 43 54 / 68%);
+      font-weight: 500;
+      font-size: 15px;
+      height: 70px;
+
+      .employee-name {
+        color: #110f49 !important;
+        font-weight: 600;
+      }
+      .email,
+      .department {
+        color: rgb(37 43 54) !important;
+      }
+      .avatar-img {
+        width: 40px;
+        height: 40px;
+      }
+    }
+  }
+  .badge {
+    background-color: #e3fbf3 !important;
+    color: #198754;
+  }
+  .p-multiselect-label {
+    padding-top: 7px !important;
+    padding-bottom: 7px !important;
+  }
+
+  p-multiselect-items {
+    padding-left: 0 !important;
+    .p-multiselect-item {
+      padding: 0.35rem 1.25rem !important;
+    }
+  }
+  .form-control {
+    width: 200px;
+    border-left: 0;
+    padding-inline-start: 0;
+    padding: 8px 0;
+    &::placeholder {
+      font-size: 15px;
+    }
+    &:focus {
+      box-shadow: none !important;
+      border-color: #dbdfe6 !important;
+    }
+  }
+  .input-group-text {
+    background-color: transparent !important;
+  }
+  .input-group {
+    width: 250px;
+  }
+}
+ul,
+ol {
+  padding-left: 0 !important;
+}

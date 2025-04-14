@@ -2,7 +2,7 @@ import React from 'react'
 import { HashRouter, Route, Routes } from 'react-router-dom'
 import './scss/style.scss'
 import './scss/examples.scss'
-import { Login } from './components/pages'
+import { Login, Reports } from './components/pages'
 import Employees from './components/pages/employees/Employess'
 
 const App = () => {
@@ -10,7 +10,8 @@ const App = () => {
     <HashRouter>
       <Routes>
         <Route exact path="/" element={<Login />} />
-        <Route path="*" element={<Employees />} />
+        <Route path="/employees" element={<Employees />} />
+        <Route path="/reports" element={<Reports />} />
       </Routes>
     </HashRouter>
   )

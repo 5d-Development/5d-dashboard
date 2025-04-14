@@ -4,7 +4,7 @@ import './scss/style.scss'
 import './scss/examples.scss'
 
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
-const Login = React.lazy(() => import('./views/pages/login/Login'))
+const Login = React.lazy(() => import('./components/login/Login'))
 
 const App = () => {
   return (

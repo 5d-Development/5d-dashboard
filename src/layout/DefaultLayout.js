@@ -1,5 +1,5 @@
 import React from 'react'
-import { AppContent, AppSidebar, AppFooter, AppHeader } from '../components/index'
+import { AppSidebar, AppFooter, AppHeader } from '../components/index'
 import Dashboard from '../views/dashboard/Dashboard'
 import { Row } from 'reactstrap'
 

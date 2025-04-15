@@ -1,0 +1,11 @@
+.employee-details {
+  min-height: 85vh;
+  .btn-outline-primary {
+    border-color: #721996;
+    color: #721996;
+    &:hover {
+      color: #fff;
+      background-color: #721996;
+    }
+  }
+}

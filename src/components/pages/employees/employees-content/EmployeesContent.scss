@@ -1,4 +1,8 @@
 .employees {
+  min-height: 85vh;
+  .pointer {
+    cursor: pointer;
+  }
   .title {
     h4 {
       color: #110f49;
@@ -8,7 +12,7 @@
     }
   }
   thead {
-    padding: 20px 0 !important;
+    height: 50px;
     th {
       font-size: 14px;
       color: rgb(37 43 54 / 68%);
@@ -66,13 +70,54 @@
     }
   }
   .input-group-text {
-    background-color: transparent !important;
+    background-color: #ffff !important;
   }
-  .input-group {
-    width: 250px;
+}
+.btn-primary {
+  background-color: #721996 !important;
+  border-color: #721996 !important;
+}
+.form-switch .form-check-input {
+  padding: 10px !important;
+  width: 2.5rem !important;
+}
+.form-check-input {
+  &:checked {
+    background-color: #cb904d;
+    border: #cb904d;
+  }
+  &:focus {
+    box-shadow: none;
+  }
+}
+.modal-content {
+  border-radius: 16px;
+  form {
+    .form-label {
+      color: #a0a0a0;
+      font-size: 15px;
+      font-weight: 600;
+    }
+    input,
+    select {
+    }
   }
 }
 ul,
 ol {
   padding-left: 0 !important;
+}
+.add-employee {
+  input,
+  .form-select {
+    padding-top: 0.8rem;
+    padding-bottom: 0.8rem;
+  }
+  .back-btn {
+    background-color: rgba(255, 255, 255, 0.3);
+    border: 0;
+    &:hover {
+      color: #fff;
+    }
+  }
 }

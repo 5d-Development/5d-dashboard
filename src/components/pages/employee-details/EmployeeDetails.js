@@ -3,15 +3,15 @@ import React from 'react'
 
 import { Row } from 'reactstrap'
 import { AppFooter, AppHeader, AppSidebar } from '../../ui'
-import ReportsContent from './reports-content/ReportsContent'
-const Employees = () => {
+import { EmployeeDetailsContent } from './employee-details-content'
+const EmployeeDetails = () => {
   return (
     <div>
       <AppSidebar />
       <div className="wrapper d-flex flex-column min-vh-100">
         <AppHeader />
         <Row className="px-5">
-          <ReportsContent />
+          <EmployeeDetailsContent />
         </Row>
         <AppFooter />
       </div>
@@ -19,4 +19,4 @@ const Employees = () => {
   )
 }
 
-export default Employees
+export default EmployeeDetails

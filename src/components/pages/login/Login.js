@@ -124,8 +124,9 @@ const Login = () => {
                         onChange={onChangeHandler}
                       />
                     </CInputGroup>
-                    <CInputGroup className="mb-4">
+                    <CInputGroup className="mb-4 ">
                       <CFormSwitch
+                        className="d-flex align-items-center  ps-0 gap-5 flex-row-reverse"
                         label="Remember me"
                         id="formSwitchCheckChecked"
                         name="rememberMe"

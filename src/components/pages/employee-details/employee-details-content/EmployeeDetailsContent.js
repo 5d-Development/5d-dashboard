@@ -1,14 +1,18 @@
 /* eslint-disable prettier/prettier */
-import { Button } from 'reactstrap'
-import './EmployeeDetails.scss'
+import { Button, Col, Form, FormGroup, InputGroup, Label, Row, Table } from 'reactstrap'
 import { useNavigate } from 'react-router-dom'
 import { MoveLeft } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
-
+import check from '/assets/images/check.png'
+import errorIcon from '/assets/images/error.png'
 import { useLocation } from 'react-router-dom' // Import useLocation
 
 import axios from 'axios'
+import { Loader, ModalMaker } from '../../../ui'
+import { Badge, Input } from 'reactstrap'
+import { TabView, TabPanel } from 'primereact/tabview'
 
+import './EmployeeDetails.scss'
 const EmployeeDetailsContent = () => {
   const navigate = useNavigate()
   const location = useLocation()
@@ -20,7 +24,10 @@ const EmployeeDetailsContent = () => {
 
   const [departments, setDepartments] = useState([])
   const [managers, setManagers] = useState([])
-
+  const [modal, setModal] = useState(false)
+  const [modalMessageVisible, setModalMessageVisible] = useState(false)
+  const [modalMessage, setModalMessage] = useState(null)
+  const toggle = () => setModal(!modal)
   useEffect(() => {
     axios
       .get('http://attendance-service.5d-dev.com/api/Employee/GetDepartments')
@@ -37,11 +44,13 @@ const EmployeeDetailsContent = () => {
       const authToken = localStorage.getItem('authToken') || sessionStorage.getItem('authToken')
 
       if (!authToken) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'No authentication token found. Please log in.',
-        })
+        setModalMessageVisible(true)
+        setModalMessage(
+          <div className="d-flex flex-column align-items-center gap-4">
+            <img src={errorIcon} width={70} height={70} />
+            <h4> Oops ! Please Login And Try Again</h4>
+          </div>,
+        )
         return
       }
 
@@ -75,11 +84,14 @@ const EmployeeDetailsContent = () => {
           isManager: response.data.isManager,
         })
       } catch (error) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Failed to fetch employee details.' + error,
-        })
+        setModal(false)
+        setModalMessageVisible(true)
+        setModalMessage(
+          <div className="d-flex flex-column align-items-center gap-4">
+            <img src={errorIcon} width={70} height={70} />
+            <h4> Oops ! An Error Occurred </h4>
+          </div>,
+        )
       } finally {
         setLoading(false)
       }
@@ -127,11 +139,13 @@ const EmployeeDetailsContent = () => {
     const authToken = localStorage.getItem('authToken') || sessionStorage.getItem('authToken')
 
     if (!authToken) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'No authentication token found. Please log in.',
-      })
+      setModalMessageVisible(true)
+      setModalMessage(
+        <div className="d-flex flex-column align-items-center gap-4">
+          <img src={errorIcon} width={70} height={70} />
+          <h4> Oops ! Please Login And Try Again</h4>
+        </div>,
+      )
       return
     }
 
@@ -173,51 +187,386 @@ const EmployeeDetailsContent = () => {
         ...editFormData,
         managerName: newManager ? newManager.name : prev.managerName, // Update managerName
       }))
-
-      Swal.fire('Success', 'Employee updated successfully!', 'success')
-
+      setModal(false)
+      setModalMessageVisible(true)
+      setModalMessage(
+        <div className="d-flex flex-column align-items-center gap-4">
+          <img src={check} width={70} height={70} />
+          <h4> Employee updated successfully!</h4>
+        </div>,
+      )
       // Close the modal
       const modal = document.getElementById('modal-fadein')
-      if (modal) {
-        modal.classList.remove('show')
-        modal.style.display = 'none'
-        document.body.classList.remove('modal-open')
-        const modalBackdrop = document.querySelector('.modal-backdrop')
-        if (modalBackdrop) {
-          modalBackdrop.remove()
-        }
-      }
     } catch (error) {
-      Swal.fire('Error', 'Failed to update employee.', 'error')
       console.error('Error updating employee:', error)
     }
-  }
-  if (loading) {
-    return (
-      <div className="LOADER">
-        <span
-          id="loading"
-          className="loader LOADER"
-          style={{ textAlign: 'center', padding: '20px' }}
-        ></span>
-      </div>
-    )
-  }
-
-  if (!employee) {
-    return <div>Employee not found.</div>
   }
 
   const handleBack = () => {
     navigate(-1)
   }
 
+  if (loading) {
+    return <Loader />
+  }
+
+  if (!employee) {
+    return <div>Employee not found.</div>
+  }
+
   return (
     <div className="employee-details">
-      <Button onClick={handleBack} color="primary" outline className="d-flex gap-2">
+      <Button onClick={handleBack} color="primary" outline className="d-flex gap-2  mb-5">
         <MoveLeft />
         Back
       </Button>
+
+      <div>
+        <div className="card">
+          <TabView className="rounded-3 overflow-hidden mb-0">
+            <TabPanel header="OverView " className="mb-0">
+              <div className="w-100">
+                <Row className="mb-3">
+                  <Col>
+                    <div className="d-flex justify-content-between align-items-start">
+                      <div className="d-flex justify-content-end w-100">
+                        <Button color="primary" onClick={toggle}>
+                          Edit
+                        </Button>
+                      </div>
+                      <ModalMaker modal={modal} toggle={toggle} centered size={'md'}>
+                        <div className="edit-modal">
+                          <Form onSubmit={handleEditFormSubmit}>
+                            <Row>
+                              <Col className="col-6">
+                                <FormGroup>
+                                  <Label for="name">Employee Name</Label>
+                                  <Input
+                                    type="text"
+                                    id="name"
+                                    name="name"
+                                    placeholder="Enter Employee Name"
+                                    value={editFormData.name}
+                                    onChange={handleEditFormChange}
+                                  />
+                                </FormGroup>
+                              </Col>
+                              <Col className="col-6">
+                                <FormGroup>
+                                  <Label for="email">Employee Email</Label>
+                                  <Input
+                                    type="text"
+                                    id="email"
+                                    name="email"
+                                    value={editFormData.email}
+                                    onChange={handleEditFormChange}
+                                  />
+                                </FormGroup>
+                              </Col>
+                              <FormGroup>
+                                <Label for="department"> Department</Label>
+                                <Input
+                                  type="select"
+                                  id="department"
+                                  name="department"
+                                  required
+                                  value={editFormData.department}
+                                  onChange={handleEditFormChange}
+                                >
+                                  {departments.map((dept) => (
+                                    <option key={dept.id} value={dept.name}>
+                                      {dept.name}
+                                    </option>
+                                  ))}
+                                </Input>
+                              </FormGroup>
+                              <FormGroup>
+                                <Label for="normalVacationBalance"> normal Vacation Balance </Label>
+                                <Input
+                                  type="number"
+                                  id="normalVacationBalance"
+                                  name="normalVacationBalance"
+                                  value={editFormData.normalVacationBalance}
+                                  onChange={handleEditFormChange}
+                                />
+                              </FormGroup>
+                              <FormGroup>
+                                <Label for="incidentalVacationBalance">
+                                  {' '}
+                                  Incidental Vacation Balance
+                                </Label>
+                                <Input
+                                  type="number"
+                                  id="incidentalVacationBalance"
+                                  name="incidentalVacationBalance"
+                                  value={editFormData.incidentalVacationBalance}
+                                  onChange={handleEditFormChange}
+                                />
+                              </FormGroup>
+                              <FormGroup>
+                                <Label for="jobTitle"> Job Title</Label>
+                                <Input
+                                  type="text"
+                                  id="jobTitle"
+                                  name="jobTitle"
+                                  value={editFormData.jobTitle}
+                                  onChange={handleEditFormChange}
+                                />
+                              </FormGroup>
+                              <FormGroup>
+                                <Label for="managerId"> Manager Name</Label>
+                                <Input
+                                  type="select"
+                                  id="managerId"
+                                  name="managerId"
+                                  required
+                                  value={editFormData.managerId}
+                                  onChange={handleEditFormChange}
+                                >
+                                  {managers.map((manager) => (
+                                    <option key={manager.id} value={manager.id}>
+                                      {manager.name}
+                                    </option>
+                                  ))}
+                                </Input>
+                              </FormGroup>
+                              <FormGroup>
+                                <Label for="mobileNumber"> Mobile Number</Label>
+                                <Input
+                                  type="text"
+                                  id="mobileNumber"
+                                  name="mobileNumber"
+                                  value={editFormData.mobileNumber}
+                                  onChange={handleEditFormChange}
+                                />
+                              </FormGroup>
+                              <div className="d-flex justify-content-between ">
+                                <FormGroup switch className="d-flex align-items-center gap-5 ps-0">
+                                  <Label for="isActive" className="mb-0">
+                                    {' '}
+                                    Is Active{' '}
+                                  </Label>
+                                  <Input
+                                    type="switch"
+                                    id="isActive"
+                                    name="isActive"
+                                    checked={editFormData.isActive}
+                                    onChange={handleEditFormChange}
+                                  />
+                                </FormGroup>
+                                <FormGroup switch className="d-flex align-items-center gap-5 ps-0">
+                                  <Label for="isRemote" className="mb-0">
+                                    {' '}
+                                    From Home{' '}
+                                  </Label>
+                                  <Input
+                                    type="switch"
+                                    id="isRemote"
+                                    name="isRemote"
+                                    checked={editFormData.isRemote}
+                                    onChange={handleEditFormChange}
+                                  />
+                                </FormGroup>
+                                <FormGroup switch className="d-flex align-items-center gap-5 ps-0">
+                                  <Label className="mb-0" for="isManager">
+                                    {' '}
+                                    Is Manager{' '}
+                                  </Label>
+                                  <Input
+                                    type="switch"
+                                    id="isManager"
+                                    name="isManager"
+                                    checked={editFormData.isManager}
+                                    onChange={handleEditFormChange}
+                                  />
+                                </FormGroup>
+                              </div>
+                              <Col sm={12}>
+                                <Button color="primary" className="mt-3 w-100" type="submit">
+                                  Save
+                                </Button>
+                              </Col>
+                            </Row>
+                          </Form>
+                        </div>
+                      </ModalMaker>
+                      {modalMessageVisible && (
+                        <ModalMaker
+                          modal={modalMessageVisible}
+                          toggle={() => setModalMessageVisible(false)}
+                          centered
+                          modalControls={
+                            <Button
+                              color="secondary"
+                              onClick={() => setModalMessageVisible(false)}
+                              className="px-3 w-100"
+                            >
+                              Ok
+                            </Button>
+                          }
+                        >
+                          {modalMessage}
+                        </ModalMaker>
+                      )}
+                    </div>
+                  </Col>
+                </Row>
+                <Row className="w-100">
+                  <Col xl={6}>
+                    <tr>
+                      <td>
+                        <span className="fw-bold pe-4  ">Full Name</span>
+                      </td>
+                      <td>
+                        {' '}
+                        : <span className="ps-3"> {employee.name && employee.name}</span>{' '}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="label-cell">
+                        <span className="fw-bold pe-4">Email</span>
+                      </td>
+                      <td>
+                        : <span className="ps-3">{employee.email && employee.email}</span>{' '}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="label-cell">
+                        {' '}
+                        <span className="fw-bold pe-4">Job Title </span>
+                      </td>
+                      <td>
+                        :{' '}
+                        <span className="ps-3">{employee.jobTitle && employee.jobTitle}</span>{' '}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="label-cell">
+                        {' '}
+                        <span className="fw-bold pe-4"> Department </span>
+                      </td>
+                      <td>
+                        :{' '}
+                        <span className="ps-3">
+                          {employee.department && employee.department}
+                        </span>{' '}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="label-cell">
+                        {' '}
+                        <span className="fw-bold pe-4"> normalVacationBalance </span>
+                      </td>
+                      <td>
+                        :{' '}
+                        <span className="ps-3">
+                          {employee.normalVacationBalance && employee.normalVacationBalance}
+                        </span>{' '}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="label-cell">
+                        {' '}
+                        <span className="fw-bold pe-4"> managerName </span>
+                      </td>
+                      <td>
+                        :{' '}
+                        <span className="ps-3">
+                          {employee.managerName && employee.managerName}
+                        </span>{' '}
+                      </td>
+                    </tr>
+                  </Col>
+
+                  <Col xl={6}>
+                    <tr>
+                      <td className="label-cell">
+                        {' '}
+                        <span className="fw-bold pe-4"> mobileNumber </span>
+                      </td>
+                      <td>
+                        :{' '}
+                        <span className="ps-3">
+                          {employee.mobileNumber && employee.mobileNumber}
+                        </span>{' '}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="label-cell">
+                        {' '}
+                        <span className="fw-bold pe-4"> Is Active </span>
+                      </td>
+                      <td>
+                        :{' '}
+                        <span className="ps-3">
+                          {employee.isActive ? (
+                            <Badge color="success">Active</Badge>
+                          ) : (
+                            <Badge severity="danger">Non Active</Badge>
+                          )}
+                        </span>{' '}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="label-cell">
+                        {' '}
+                        <span className="fw-bold pe-4"> Is Passed Probation </span>
+                      </td>
+                      <td>
+                        :{' '}
+                        <span className="ps-3">
+                          {employee.isPassedProbation || <Badge color="danger">In Probation</Badge>}
+                        </span>{' '}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="label-cell">
+                        {' '}
+                        <span className="fw-bold pe-4"> Is Remote </span>
+                      </td>
+                      <td>
+                        :{' '}
+                        <span className="ps-3">
+                          {employee.isRemote ? (
+                            <Badge color="warning">Remote</Badge>
+                          ) : (
+                            <Badge color="warning">Onsite</Badge>
+                          )}
+                        </span>{' '}
+                      </td>
+                    </tr>
+                    {employee.isManager && (
+                      <tr>
+                        <td className="label-cell">
+                          {' '}
+                          <span className="fw-bold pe-4"> Is Manager </span>
+                        </td>
+                        <td>
+                          :{' '}
+                          <span className="ps-3">
+                            {employee.isManager && <Badge color="success">Manager</Badge>}
+                          </span>{' '}
+                        </td>
+                      </tr>
+                    )}
+                    <tr>
+                      <td className="label-cell">
+                        {' '}
+                        <span className="fw-bold pe-4"> incidentalVacationBalance </span>
+                      </td>
+                      <td>
+                        :{' '}
+                        <span className="ps-3">{employee.incidentalVacationBalance || 0}</span>{' '}
+                      </td>
+                    </tr>
+                  </Col>
+                </Row>
+              </div>
+            </TabPanel>
+            <TabPanel header="History"></TabPanel>
+          </TabView>
+        </div>
+      </div>
     </div>
   )
 }

@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
 import 'core-js'
 import 'bootstrap/dist/css/bootstrap.min.css'
-
+import 'primereact/resources/themes/lara-light-blue/theme.css' // PrimeReact theme
 import App from './App'
 import store from './store'
 

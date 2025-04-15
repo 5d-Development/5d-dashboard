@@ -8,4 +8,35 @@
       background-color: #721996;
     }
   }
+  .text-primary {
+    color: #721996 !important;
+  }
+  .employee-img {
+    width: 200px;
+    height: 200px;
+  }
+  .label-cell {
+    font-weight: bold;
+    max-width: auto; // adjust as needed for alignment
+    white-space: nowrap;
+  }
+  tr {
+    height: 40px;
+  }
+}
+.edit-modal {
+  input,
+  .form-select {
+    padding-top: 0.7rem !important;
+    padding-bottom: 0.7rem !important;
+  }
+  button {
+    padding: 10px 0;
+  }
+}
+.p-tabview-title {
+  color: #721996 !important;
+}
+.p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+  border-color: #721996 !important;
 }

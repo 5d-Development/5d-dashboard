@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react'
 import { MultiSelect } from 'primereact/multiselect'
 import { Badge } from 'primereact/badge'
-import { ProgressSpinner } from 'primereact/progressspinner'
 import { CAccordion, CAccordionBody, CAccordionHeader, CAccordionItem } from '@coreui/react'
 
 import { Calendar } from 'primereact/calendar'
@@ -14,10 +13,9 @@ import {
   CTableHeaderCell,
   CTableRow,
 } from '@coreui/react'
-import { Accordion, AccordionTab } from 'primereact/accordion'
 import { Loader, Pagination } from '../../../ui'
 import './ReportsContent.scss'
-import { Col, Row } from 'reactstrap'
+import { Button, Col, Row, Table } from 'reactstrap'
 const ReportsContent = () => {
   const [reportData, setReportData] = useState({
     employees: [],
@@ -154,13 +152,14 @@ const ReportsContent = () => {
           dateFormat="yy-mm-dd"
           disabled={loading}
         />
-        <button
-          className="btn btn-primary filter-btn"
+        <Button
+          color="primary"
+          className="filter-btn"
           onClick={() => handleFilter(1)}
           disabled={loading}
         >
           {loading ? 'Loading...' : 'Filter'}
-        </button>
+        </Button>
       </div>
       {loading ? (
         <Loader />
@@ -201,19 +200,19 @@ const ReportsContent = () => {
                     </CAccordionHeader>
                     <CAccordionBody>
                       {' '}
-                      <CTable align="middle" className="mb-0 " hover responsive>
-                        <CTableHead className="text-nowrap ">
-                          <CTableRow>
-                            <CTableHeaderCell>Date</CTableHeaderCell>
-                            <CTableHeaderCell>Difference Hours</CTableHeaderCell>
-                            <CTableHeaderCell>Status</CTableHeaderCell>
-                          </CTableRow>
-                        </CTableHead>
-                        <CTableBody>
+                      <Table align="middle" className="mb-0 " hover responsive>
+                        <thead className="text-nowrap ">
+                          <tr>
+                            <th>Date</th>
+                            <th>Difference Hours</th>
+                            <th>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
                           {employee.days.map((day, i) => (
-                            <CTableRow key={`${index}-${i}`}>
-                              <CTableDataCell>{formatDateForDisplay(day.date)}</CTableDataCell>
-                              <CTableDataCell>
+                            <tr key={`${index}-${i}`}>
+                              <td>{formatDateForDisplay(day.date)}</td>
+                              <td>
                                 {day.workHours > 0 ? (
                                   <Badge
                                     value={formatHoursAndMinutes(8 - day.workHours)}
@@ -222,8 +221,8 @@ const ReportsContent = () => {
                                 ) : (
                                   ''
                                 )}
-                              </CTableDataCell>
-                              <CTableDataCell>
+                              </td>
+                              <td>
                                 {day.status === 'Absent' ? (
                                   <Badge value="Absent" severity="danger" />
                                 ) : day.status === 'Incomplete Workday' ? (
@@ -231,11 +230,11 @@ const ReportsContent = () => {
                                 ) : (
                                   ''
                                 )}
-                              </CTableDataCell>
-                            </CTableRow>
+                              </td>
+                            </tr>
                           ))}
-                        </CTableBody>
-                      </CTable>
+                        </tbody>
+                      </Table>
                     </CAccordionBody>
                   </CAccordionItem>
                 ))}

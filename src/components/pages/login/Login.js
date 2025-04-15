@@ -1,23 +1,22 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Lock, User } from 'lucide-react'
+import {
+  Button,
+  Card,
+  CardBody,
+  Col,
+  Container,
+  Form,
+  FormGroup,
+  Input,
+  InputGroup,
+  InputGroupText,
+  Label,
+  Row,
+} from 'reactstrap'
 import logo from '/assets/images/5d-logo.png'
 
-import {
-  CButton,
-  CCard,
-  CCardBody,
-  CCardGroup,
-  CCol,
-  CContainer,
-  CForm,
-  CFormInput,
-  CInputGroup,
-  CInputGroupText,
-  CRow,
-  CFormSwitch,
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
-import { cilLockLocked, cilUser } from '@coreui/icons'
 import './login.scss'
 
 const Login = () => {
@@ -89,68 +88,69 @@ const Login = () => {
 
   return (
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center login">
-      <CContainer>
-        <CRow className="justify-content-center">
-          <CCol md={8}>
-            <CCardGroup>
-              <CCard className="p-4">
-                <CCardBody>
-                  <CForm onSubmit={handleSubmit}>
-                    <div className="d-flex flex-column align-items-center">
-                      <p className="text-body-secondary">
-                        <img src={logo} alt="logo" />
-                      </p>
-                    </div>
-                    <CInputGroup className="mb-3">
-                      <CInputGroupText>
-                        <CIcon icon={cilUser} />
-                      </CInputGroupText>
-                      <CFormInput
-                        placeholder="Email"
-                        name="email"
-                        value={login.email}
-                        onChange={onChangeHandler}
-                      />
-                    </CInputGroup>
-                    <CInputGroup className="mb-4">
-                      <CInputGroupText>
-                        <CIcon icon={cilLockLocked} />
-                      </CInputGroupText>
-                      <CFormInput
-                        type="password"
-                        placeholder="Password"
-                        name="password"
-                        value={login.password}
-                        onChange={onChangeHandler}
-                      />
-                    </CInputGroup>
-                    <CInputGroup className="mb-4 ">
-                      <CFormSwitch
-                        className="d-flex align-items-center  ps-0 gap-5 flex-row-reverse"
-                        label="Remember me"
-                        id="formSwitchCheckChecked"
-                        name="rememberMe"
-                        checked={login.rememberMe}
-                        onChange={onChangeHandler}
-                      />
-                    </CInputGroup>
-                    <CRow>
-                      <CButton
-                        type="submit"
-                        className="px-4 login-btn"
-                        disabled={isLoading}
-                        aria-label={isLoading ? 'Logging in...' : 'Log in'}
-                      >
-                        {isLoading ? 'Logging in...' : 'Log in'}
-                      </CButton>
-                    </CRow>
-                  </CForm>
-                </CCardBody>
-              </CCard>
-            </CCardGroup>
-          </CCol>
-        </CRow>
-      </CContainer>
+      <Container>
+        <Row className="justify-content-center">
+          <Col md={8}>
+            <Card className="p-4">
+              <CardBody>
+                <Form onSubmit={handleSubmit}>
+                  <div className="d-flex flex-column align-items-center">
+                    <p className="text-body-secondary">
+                      <img src={logo} alt="logo" />
+                    </p>
+                  </div>
+                  <InputGroup className="mb-3">
+                    <InputGroupText>
+                      <User color="#721996" size={18} />
+                    </InputGroupText>
+                    <Input
+                      placeholder="Email"
+                      name="email"
+                      value={login.email}
+                      onChange={onChangeHandler}
+                    />
+                  </InputGroup>
+                  <InputGroup className="mb-4">
+                    <InputGroupText>
+                      <Lock color="#721996" size={16} />
+                    </InputGroupText>
+                    <Input
+                      type="password"
+                      placeholder="Password"
+                      name="password"
+                      value={login.password}
+                      onChange={onChangeHandler}
+                    />
+                  </InputGroup>
+                  <FormGroup switch className="d-flex align-items-center  ps-0 gap-5  mb-4">
+                    <Label for="rememberMe" className="mb-0">
+                      Remember Me
+                    </Label>
+                    <Input
+                      type="switch"
+                      id="rememberMe"
+                      name="rememberMe"
+                      checked={login.rememberMe}
+                      onChange={onChangeHandler}
+                    />
+                  </FormGroup>
+
+                  <Row>
+                    <Button
+                      type="submit"
+                      className="px-4 login-btn"
+                      disabled={isLoading}
+                      aria-label={isLoading ? 'Logging in...' : 'Log in'}
+                    >
+                      {isLoading ? 'Logging in...' : 'Log in'}
+                    </Button>
+                  </Row>
+                </Form>
+              </CardBody>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
     </div>
   )
 }

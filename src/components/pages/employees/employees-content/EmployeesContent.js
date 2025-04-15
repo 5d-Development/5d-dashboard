@@ -1,48 +1,28 @@
 import React, { useEffect, useState } from 'react'
 import { Check, ChevronDown, MoveRight, Search } from 'lucide-react'
 import { MultiSelect } from 'primereact/multiselect'
-import 'primereact/resources/themes/lara-light-blue/theme.css' // PrimeReact theme
-import 'primereact/resources/primereact.min.css' // Core styles
-import 'primeicons/primeicons.css' // Icons
-import check from '/assets/images/check.png'
-import errorIcon from '/assets/images/error.png'
-import employee from '/assets/images/employee.jpg'
-import {
-  CAvatar,
-  CCard,
-  CCol,
-  CFormInput,
-  CFormLabel,
-  CInputGroup,
-  CInputGroupText,
-  CRow,
-  CTable,
-  CTableBody,
-  CTableDataCell,
-  CTableHead,
-  CTableHeaderCell,
-  CTableRow,
-  CButton,
-} from '@coreui/react'
-
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import {
   Badge,
   Col,
   Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
+  InputGroup,
   Row,
   Form,
   FormGroup,
   Label,
+  Card,
   Input,
+  InputGroupText,
+  Table,
 } from 'reactstrap'
+
+import check from '/assets/images/check.png'
+import errorIcon from '/assets/images/error.png'
+import employee from '/assets/images/employee.jpg'
 import { Loader, Pagination, ModalMaker } from '../../../ui'
 import './EmployeesContent.scss'
-import { useNavigate } from 'react-router-dom'
 
 const Dashboard = () => {
   const [employeeData, setEmployeeData] = useState({
@@ -143,48 +123,70 @@ const Dashboard = () => {
     fetchEmployees(newPage, ITEMS_PER_PAGE)
   }
 
-  const filteredEmployees = employees.filter((employee) => {
-    const filteredDepartments =
-      selectedDepartment.length === 0 || selectedDepartment.includes(Number(employee.department))
+  const filteredEmployees = employees
+    .filter((employee) => {
+      const filteredDepartments =
+        selectedDepartment.length === 0 ||
+        selectedDepartment.includes(Number(employee.department)) ||
+        selectedDepartment.includes(departments.find((d) => d.name === employee.department)?.id)
 
-    const filteredManagers =
-      selectedManager.length === 0 || selectedManager.includes(employee.managerId)
+      const filteredManagers =
+        selectedManager.length === 0 || selectedManager.includes(employee.managerId)
 
-    return filteredDepartments && filteredManagers
-  })
-  const fetchEmployees = async (pageNumber, pageSize) => {
+      return filteredDepartments && filteredManagers
+    })
+    .map((employee) => {
+      // Find the department name for this employee
+      const department = departments.find(
+        (dept) => dept.id === Number(employee.department) || dept.name === employee.department,
+      )
+
+      return {
+        ...employee,
+        department: department ? department.name : employee.department,
+      }
+    })
+  const fetchEmployees = async (pageNumber, pageSize, filters = {}) => {
     const authToken = localStorage.getItem('authToken') || sessionStorage.getItem('authToken')
 
     if (!authToken) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'No authentication token found. Please log in.',
-      })
+      setModalMessageVisible(true)
+      setModalMessage(
+        <div className="d-flex flex-column align-items-center gap-4">
+          <img src={errorIcon} width={70} height={70} />
+          <h4> Oops ! Please Login And Try Again</h4>
+        </div>,
+      )
       return
     }
 
     setLoading(true)
     try {
+      let queryParams = []
+      if (filters.searchTerm)
+        queryParams.push(`searchTerm=${encodeURIComponent(filters.searchTerm)}`)
+      if (filters.department && filters.department.length > 0)
+        queryParams.push(`departments=${filters.department.toLowerCse().join(',')}`)
+      if (filters.manager && filters.manager.length > 0)
+        queryParams.push(`managerId=${filters.manager.toLowerCse().join(',')}`)
+
+      const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : ''
+
       const response = await axios.get(
-        `http://attendance-service.5d-dev.com/api/Employee/GetAllEmployees?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+        `http://attendance-service.5d-dev.com/api/Employee/SearchEmployees${queryString}`,
         {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
+          headers: { Authorization: `Bearer ${authToken}` },
         },
       )
-
-      if (response.data && response.data.totalPages) {
-        setEmployees(response.data.employees)
-        setTotalPages(response.data.totalPages)
+      if (Array.isArray(response.data)) {
+        setEmployees(response.data)
+        setTotalPages(Math.ceil(response.data.length / ITEMS_PER_PAGE))
+      } else {
+        console.error('Unexpected API response format:', response.data)
+        setEmployees([])
       }
-    } catch (err) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to fetch employee data.' + err,
-      })
+    } catch (error) {
+      console.error('Error fetching data:', error)
     } finally {
       setLoading(false)
     }
@@ -204,75 +206,51 @@ const Dashboard = () => {
     value: manager.id,
   }))
 
-  const handleSearchChange = async (e) => {
+  const handleSearchChange = (e) => {
     const searchValue = e.target.value
     setSearchTerm(searchValue)
 
-    fetchFilteredEmployees(searchValue, selectedDepartment, selectedManager)
+    fetchEmployees(currentPage, ITEMS_PER_PAGE, {
+      searchTerm: searchValue,
+      department: selectedDepartment,
+      manager: selectedManager,
+    })
   }
 
   const handleFilterChange = (filterType, value) => {
     if (filterType === 'department') {
       setSelectedDepartment(value)
-      fetchFilteredEmployees(searchTerm, value, selectedManager)
+      fetchEmployees(currentPage, ITEMS_PER_PAGE, {
+        searchTerm: searchTerm,
+        department: value,
+        manager: selectedManager,
+      })
     } else if (filterType === 'manager') {
       setSelectedManager(value)
-      fetchFilteredEmployees(searchTerm, selectedDepartment, value)
+      fetchEmployees(currentPage, ITEMS_PER_PAGE, {
+        searchTerm: searchTerm,
+        department: selectedDepartment,
+        manager: value,
+      })
     }
   }
-  const fetchFilteredEmployees = async (
-    searchValue,
-    department,
-    manager,
-    // page = 1
-  ) => {
-    setLoading(true)
-    try {
-      const authToken = localStorage.getItem('authToken') || sessionStorage.getItem('authToken')
 
-      let queryParams = []
-      if (searchValue) queryParams.push(`searchTerm=${encodeURIComponent(searchValue)}`)
-      if (department.length > 0) queryParams.push(`departments=${department.join(',')}`)
-      if (manager.length > 0) queryParams.push(`managerId=${manager.join(',')}`)
-
-      const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : ''
-
-      const response = await axios.get(
-        `http://attendance-service.5d-dev.com/api/Employee/SearchEmployees${queryString}`,
-        {
-          headers: { Authorization: `Bearer ${authToken}` },
-        },
-      )
-      if (Array.isArray(response.data)) {
-        setEmployees(response.data)
-        setTotalPages(Math.ceil(response.data.length / ITEMS_PER_PAGE))
-      } else {
-        console.error('Unexpected API response format:', response.data)
-        setEmployees([])
-      }
-    } catch (error) {
-      console.error('Error fetching search results:', error)
-      Swal.fire('Error', 'Failed to fetch search results.', 'error')
-    } finally {
-      setLoading(false)
-    }
-  }
   const noFiltersApplied =
     !searchTerm && selectedDepartment.length === 0 && selectedManager.length === 0
-  const handleCloseModal = () => {
-    setModal(!modal)
-    setEmployeeData({
-      name: '',
-      email: '',
-      department: '',
-      manager: '',
-      mobileNumber: '',
-      jobTitle: '',
-      isPassedProbation: false,
-      isRemote: false,
-      isManager: false,
-    })
-  }
+
+  const indexOfLastEmployee = currentPage * ITEMS_PER_PAGE
+  const indexOfFirstEmployee = indexOfLastEmployee - ITEMS_PER_PAGE
+  const currentEmployees = filteredEmployees.slice(indexOfFirstEmployee, indexOfLastEmployee)
+
+  useEffect(() => {
+    setTotalPages(Math.ceil(filteredEmployees.length / ITEMS_PER_PAGE))
+  }, [filteredEmployees])
+
+  // Reset to first page if filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, selectedDepartment, selectedManager])
+
   return (
     <div className="employees">
       <div className="title">
@@ -280,7 +258,7 @@ const Dashboard = () => {
         <p>Lorem Ipsum is simply dummy text </p>
       </div>
 
-      <CRow>
+      <Row>
         <div className="d-flex justify-content-between align-items-center flex-wrap gap-1">
           <div className="d-flex gap-2 pt-4 pb-3 ">
             <MultiSelect
@@ -310,20 +288,20 @@ const Dashboard = () => {
           </div>
 
           <div className="d-flex gap-2 algin-items-center w-auto mb-3 mb-md-0">
-            <CInputGroup className="flex-nowrap">
-              <CInputGroupText>
+            <InputGroup className="flex-nowrap">
+              <InputGroupText>
                 <Search size={18} />
-              </CInputGroupText>
-              <CFormInput
+              </InputGroupText>
+              <Input
                 id="autoSizingInputGroup"
                 placeholder="Search In Table"
                 value={searchTerm}
                 onChange={handleSearchChange}
               />
-            </CInputGroup>
-            <CButton color="primary" className="w-100" onClick={toggle}>
+            </InputGroup>
+            <Button color="primary" className="w-100" onClick={toggle}>
               Add Employee
-            </CButton>
+            </Button>
             <ModalMaker modal={modal} toggle={toggle} centered size={'xl'}>
               <div className="add-employee pe-5 ">
                 <Row>
@@ -479,9 +457,9 @@ const Dashboard = () => {
                           </FormGroup>
                         </Col>
                       </Row>
-                      <CButton color="primary" type="submit" className="px-3 w-100 py-2 mt-4">
+                      <Button color="primary" type="submit" className="px-3 w-100 py-2 mt-4">
                         Add
-                      </CButton>
+                      </Button>
                     </Form>
                   </Col>
                 </Row>
@@ -493,13 +471,13 @@ const Dashboard = () => {
                 toggle={() => setModalMessageVisible(false)}
                 centered
                 modalControls={
-                  <CButton
+                  <Button
                     color="secondary"
                     onClick={() => setModalMessageVisible(false)}
                     className="px-3 w-100"
                   >
                     Ok
-                  </CButton>
+                  </Button>
                 }
               >
                 {modalMessage}
@@ -507,80 +485,85 @@ const Dashboard = () => {
             )}
           </div>
         </div>
-        <CCol xs>
-          <CCard className="mb-4 border-0">
+        <Col xs>
+          <Card className="mb-4 border-0">
             <>
-              <CTable align="middle" className="mb-0 rounded-top overflow-hidden " hover responsive>
-                <CTableHead className="text-nowrap ">
-                  <CTableRow>
-                    <CTableHeaderCell>
+              <Table align="middle" className="mb-0 rounded-top overflow-hidden " hover responsive>
+                <thead className="text-nowrap ">
+                  <tr>
+                    <th>
                       <div className="d-flex align-items-center gap-2">
                         <span>NAME</span>
                         <ChevronDown size={21} />
                       </div>
-                    </CTableHeaderCell>
-                    <CTableHeaderCell>
+                    </th>
+                    <th>
                       <div className="d-flex align-items-center gap-2">
                         <span>EMAIL</span>
                         <ChevronDown size={21} />
                       </div>
-                    </CTableHeaderCell>
-                    <CTableHeaderCell>
+                    </th>
+                    <th>
                       <div className="d-flex align-items-center gap-2">
                         <span>DEPARTMENT</span>
                         <ChevronDown size={21} />
                       </div>
-                    </CTableHeaderCell>
-                    <CTableHeaderCell>
+                    </th>
+                    <th>
                       <div className="d-flex align-items-center gap-2">
                         <span>MANAGER</span>
                         <ChevronDown size={21} />
                       </div>
-                    </CTableHeaderCell>
-                    <CTableHeaderCell>
-                      {' '}
+                    </th>
+                    <th>
                       <div className="d-flex align-items-center gap-2">
                         <span>WORK MODE</span>
                         <ChevronDown size={21} />
                       </div>
-                    </CTableHeaderCell>
-                  </CTableRow>
-                </CTableHead>
-                <CTableBody>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
                   {loading ? (
-                    <CTableRow>
-                      <CTableDataCell colSpan="5" className="text-center py-5">
+                    <tr>
+                      <td colSpan="5" className="text-center py-5">
                         <Loader />
-                      </CTableDataCell>
-                    </CTableRow>
-                  ) : filteredEmployees.length === 0 ? (
-                    <CTableRow>
-                      <CTableDataCell colSpan="5" className="text-center py-5">
+                      </td>
+                    </tr>
+                  ) : currentEmployees.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" className="text-center py-5">
                         {noFiltersApplied ? (
                           <span>No filters applied. Showing all employees.</span>
                         ) : (
                           <span>No results found for selected filters.</span>
                         )}
-                      </CTableDataCell>
-                    </CTableRow>
+                      </td>
+                    </tr>
                   ) : (
-                    filteredEmployees.map((employee) => (
-                      <CTableRow
+                    currentEmployees.map((employee) => (
+                      <tr
                         className="pointer"
                         v-for="item in tableItems"
                         key={employee.id}
                         onClick={() => handleRowClick(employee.id)}
                       >
-                        <CTableDataCell>
+                        <td>
                           <div className="d-flex align-items-center gap-3">
                             {employee.imagePath ? (
-                              <CAvatar
-                                size="md"
+                              <img
+                                width={40}
+                                height={40}
+                                className="rounded-circle"
                                 src={`http://attendance-service.5d-dev.com${employee.imagePath}`}
-                                status={'success'}
                               />
                             ) : (
-                              <CAvatar size="md" src="https://placehold.co/30x30" />
+                              <img
+                                className="rounded-circle"
+                                width={40}
+                                height={40}
+                                src="https://placehold.co/30x30"
+                              />
                             )}
                             <div>
                               <div className="employee-name">{employee.name}</div>
@@ -589,18 +572,21 @@ const Dashboard = () => {
                               </div>
                             </div>
                           </div>
-                        </CTableDataCell>
+                        </td>
 
-                        <CTableDataCell>
+                        <td>
                           <div className="email">{employee.email}</div>
-                        </CTableDataCell>
-                        <CTableDataCell>
-                          <div className="department">{employee.department}</div>
-                        </CTableDataCell>
-                        <CTableDataCell>
+                        </td>
+                        <td>
+                          <div className="department">
+                            {departments.find((d) => d.id === Number(employee.department))?.name ||
+                              employee.department}
+                          </div>
+                        </td>
+                        <td>
                           <div>{employee.managerName}</div>
-                        </CTableDataCell>
-                        <CTableDataCell>
+                        </td>
+                        <td>
                           <div>
                             {' '}
                             {employee.isRemote ? (
@@ -616,15 +602,15 @@ const Dashboard = () => {
                               </Badge>
                             )}
                           </div>
-                        </CTableDataCell>
-                      </CTableRow>
+                        </td>
+                      </tr>
                     ))
                   )}
-                </CTableBody>
-              </CTable>
+                </tbody>
+              </Table>
             </>
             <div className="pt-4">
-              {!searchTerm && selectedDepartment.length === 0 && selectedManager.length === 0 && (
+              {totalPages > 1 && (
                 <Pagination
                   currentPage={currentPage}
                   totalPages={totalPages}
@@ -632,9 +618,9 @@ const Dashboard = () => {
                 />
               )}
             </div>
-          </CCard>
-        </CCol>
-      </CRow>
+          </Card>
+        </Col>
+      </Row>
     </div>
   )
 }

@@ -19,7 +19,6 @@ const EmployeeDetailsContent = () => {
   const { employeeId } = location.state || {}
   const [employee, setEmployee] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState('overview')
   const [editFormData, setEditFormData] = useState(employee || {})
 
   const [departments, setDepartments] = useState([])
@@ -215,203 +214,205 @@ const EmployeeDetailsContent = () => {
   }
 
   return (
-    <div className="employee-details">
-      <Button onClick={handleBack} color="primary" outline className="d-flex gap-2  mb-5">
-        <MoveLeft />
-        Back
-      </Button>
+    <div className="employee-details  ">
+      <div className="d-flex align-items-center mb-5 gap-3 ">
+        <Button onClick={handleBack} color="primary" outline className="d-flex gap-2">
+          <MoveLeft />
+          Back
+        </Button>
+        <h5 className="mb-0 text-primary">Edit Profile</h5>
+      </div>
 
       <div>
-        <div className="card">
-          <TabView className="rounded-3 overflow-hidden mb-0">
-            <TabPanel header="OverView " className="mb-0">
-              <div className="w-100">
-                <Row className="mb-3">
-                  <Col>
-                    <div className="d-flex justify-content-between align-items-start">
-                      <div className="d-flex justify-content-end w-100">
-                        <Button color="primary" onClick={toggle}>
-                          Edit
-                        </Button>
-                      </div>
-                      <ModalMaker modal={modal} toggle={toggle} centered size={'md'}>
-                        <div className="edit-modal">
-                          <Form onSubmit={handleEditFormSubmit}>
-                            <Row>
-                              <Col className="col-6">
-                                <FormGroup>
-                                  <Label for="name">Employee Name</Label>
-                                  <Input
-                                    type="text"
-                                    id="name"
-                                    name="name"
-                                    placeholder="Enter Employee Name"
-                                    value={editFormData.name}
-                                    onChange={handleEditFormChange}
-                                  />
-                                </FormGroup>
-                              </Col>
-                              <Col className="col-6">
-                                <FormGroup>
-                                  <Label for="email">Employee Email</Label>
-                                  <Input
-                                    type="text"
-                                    id="email"
-                                    name="email"
-                                    value={editFormData.email}
-                                    onChange={handleEditFormChange}
-                                  />
-                                </FormGroup>
-                              </Col>
-                              <FormGroup>
-                                <Label for="department"> Department</Label>
-                                <Input
-                                  type="select"
-                                  id="department"
-                                  name="department"
-                                  required
-                                  value={editFormData.department}
-                                  onChange={handleEditFormChange}
-                                >
-                                  {departments.map((dept) => (
-                                    <option key={dept.id} value={dept.name}>
-                                      {dept.name}
-                                    </option>
-                                  ))}
-                                </Input>
-                              </FormGroup>
-                              <FormGroup>
-                                <Label for="normalVacationBalance"> normal Vacation Balance </Label>
-                                <Input
-                                  type="number"
-                                  id="normalVacationBalance"
-                                  name="normalVacationBalance"
-                                  value={editFormData.normalVacationBalance}
-                                  onChange={handleEditFormChange}
-                                />
-                              </FormGroup>
-                              <FormGroup>
-                                <Label for="incidentalVacationBalance">
-                                  {' '}
-                                  Incidental Vacation Balance
-                                </Label>
-                                <Input
-                                  type="number"
-                                  id="incidentalVacationBalance"
-                                  name="incidentalVacationBalance"
-                                  value={editFormData.incidentalVacationBalance}
-                                  onChange={handleEditFormChange}
-                                />
-                              </FormGroup>
-                              <FormGroup>
-                                <Label for="jobTitle"> Job Title</Label>
-                                <Input
-                                  type="text"
-                                  id="jobTitle"
-                                  name="jobTitle"
-                                  value={editFormData.jobTitle}
-                                  onChange={handleEditFormChange}
-                                />
-                              </FormGroup>
-                              <FormGroup>
-                                <Label for="managerId"> Manager Name</Label>
-                                <Input
-                                  type="select"
-                                  id="managerId"
-                                  name="managerId"
-                                  required
-                                  value={editFormData.managerId}
-                                  onChange={handleEditFormChange}
-                                >
-                                  {managers.map((manager) => (
-                                    <option key={manager.id} value={manager.id}>
-                                      {manager.name}
-                                    </option>
-                                  ))}
-                                </Input>
-                              </FormGroup>
-                              <FormGroup>
-                                <Label for="mobileNumber"> Mobile Number</Label>
-                                <Input
-                                  type="text"
-                                  id="mobileNumber"
-                                  name="mobileNumber"
-                                  value={editFormData.mobileNumber}
-                                  onChange={handleEditFormChange}
-                                />
-                              </FormGroup>
-                              <div className="d-flex justify-content-between ">
-                                <FormGroup switch className="d-flex align-items-center gap-5 ps-0">
-                                  <Label for="isActive" className="mb-0">
-                                    {' '}
-                                    Is Active{' '}
-                                  </Label>
-                                  <Input
-                                    type="switch"
-                                    id="isActive"
-                                    name="isActive"
-                                    checked={editFormData.isActive}
-                                    onChange={handleEditFormChange}
-                                  />
-                                </FormGroup>
-                                <FormGroup switch className="d-flex align-items-center gap-5 ps-0">
-                                  <Label for="isRemote" className="mb-0">
-                                    {' '}
-                                    From Home{' '}
-                                  </Label>
-                                  <Input
-                                    type="switch"
-                                    id="isRemote"
-                                    name="isRemote"
-                                    checked={editFormData.isRemote}
-                                    onChange={handleEditFormChange}
-                                  />
-                                </FormGroup>
-                                <FormGroup switch className="d-flex align-items-center gap-5 ps-0">
-                                  <Label className="mb-0" for="isManager">
-                                    {' '}
-                                    Is Manager{' '}
-                                  </Label>
-                                  <Input
-                                    type="switch"
-                                    id="isManager"
-                                    name="isManager"
-                                    checked={editFormData.isManager}
-                                    onChange={handleEditFormChange}
-                                  />
-                                </FormGroup>
-                              </div>
-                              <Col sm={12}>
-                                <Button color="primary" className="mt-3 w-100" type="submit">
-                                  Save
-                                </Button>
-                              </Col>
-                            </Row>
-                          </Form>
-                        </div>
-                      </ModalMaker>
-                      {modalMessageVisible && (
-                        <ModalMaker
-                          modal={modalMessageVisible}
-                          toggle={() => setModalMessageVisible(false)}
-                          centered
-                          modalControls={
-                            <Button
-                              color="secondary"
-                              onClick={() => setModalMessageVisible(false)}
-                              className="px-3 w-100"
-                            >
-                              Ok
-                            </Button>
-                          }
-                        >
-                          {modalMessage}
-                        </ModalMaker>
-                      )}
+        <div className="w-100">
+          <Row className="mb-3">
+            <Col>
+              <div className="d-flex justify-content-between align-items-start">
+                <Form onSubmit={handleEditFormSubmit}>
+                  <Row>
+                    <Col className="col-6">
+                      <FormGroup>
+                        <Label for="name">Employee Name</Label>
+                        <Input
+                          type="text"
+                          id="name"
+                          name="name"
+                          placeholder="Enter Employee Name"
+                          value={editFormData.name}
+                          onChange={handleEditFormChange}
+                        />
+                      </FormGroup>
+                    </Col>
+                    <Col className="col-6">
+                      <FormGroup>
+                        <Label for="email">Employee Email</Label>
+                        <Input
+                          type="text"
+                          id="email"
+                          name="email"
+                          value={editFormData.email}
+                          onChange={handleEditFormChange}
+                        />
+                      </FormGroup>
+                    </Col>
+                    <FormGroup>
+                      <Label for="department"> Department</Label>
+                      <Input
+                        type="select"
+                        id="department"
+                        name="department"
+                        required
+                        value={editFormData.department}
+                        onChange={handleEditFormChange}
+                      >
+                        {departments.map((dept) => (
+                          <option key={dept.id} value={dept.name}>
+                            {dept.name}
+                          </option>
+                        ))}
+                      </Input>
+                    </FormGroup>
+                    <Row>
+                      <Col className="col-6">
+                        {' '}
+                        <FormGroup>
+                          <Label for="normalVacationBalance"> normal Vacation Balance </Label>
+                          <Input
+                            type="number"
+                            id="normalVacationBalance"
+                            name="normalVacationBalance"
+                            value={editFormData.normalVacationBalance}
+                            onChange={handleEditFormChange}
+                          />
+                        </FormGroup>
+                      </Col>
+                      <Col className="col-6">
+                        <FormGroup>
+                          <Label for="incidentalVacationBalance">
+                            {' '}
+                            Incidental Vacation Balance
+                          </Label>
+                          <Input
+                            type="number"
+                            id="incidentalVacationBalance"
+                            name="incidentalVacationBalance"
+                            value={editFormData.incidentalVacationBalance}
+                            onChange={handleEditFormChange}
+                          />
+                        </FormGroup>
+                      </Col>
+                    </Row>
+
+                    <FormGroup>
+                      <Label for="jobTitle"> Job Title</Label>
+                      <Input
+                        type="text"
+                        id="jobTitle"
+                        name="jobTitle"
+                        value={editFormData.jobTitle}
+                        onChange={handleEditFormChange}
+                      />
+                    </FormGroup>
+                    <FormGroup>
+                      <Label for="managerId"> Manager Name</Label>
+                      <Input
+                        type="select"
+                        id="managerId"
+                        name="managerId"
+                        required
+                        value={editFormData.managerId}
+                        onChange={handleEditFormChange}
+                      >
+                        {managers.map((manager) => (
+                          <option key={manager.id} value={manager.id}>
+                            {manager.name}
+                          </option>
+                        ))}
+                      </Input>
+                    </FormGroup>
+                    <FormGroup>
+                      <Label for="mobileNumber"> Mobile Number</Label>
+                      <Input
+                        type="text"
+                        id="mobileNumber"
+                        name="mobileNumber"
+                        value={editFormData.mobileNumber}
+                        onChange={handleEditFormChange}
+                      />
+                    </FormGroup>
+                    <div className="d-flex gap-4 ">
+                      <FormGroup switch className="d-flex align-items-center gap-5 ps-0">
+                        <Label for="isActive" className="mb-0">
+                          {' '}
+                          Is Active{' '}
+                        </Label>
+                        <Input
+                          type="switch"
+                          id="isActive"
+                          name="isActive"
+                          checked={editFormData.isActive}
+                          onChange={handleEditFormChange}
+                        />
+                      </FormGroup>
+                      <FormGroup switch className="d-flex align-items-center gap-5 ps-0">
+                        <Label for="isRemote" className="mb-0">
+                          {' '}
+                          From Home{' '}
+                        </Label>
+                        <Input
+                          type="switch"
+                          id="isRemote"
+                          name="isRemote"
+                          checked={editFormData.isRemote}
+                          onChange={handleEditFormChange}
+                        />
+                      </FormGroup>
+                      <FormGroup switch className="d-flex align-items-center gap-5 ps-0">
+                        <Label className="mb-0" for="isManager">
+                          {' '}
+                          Is Manager{' '}
+                        </Label>
+                        <Input
+                          type="switch"
+                          id="isManager"
+                          name="isManager"
+                          checked={editFormData.isManager}
+                          onChange={handleEditFormChange}
+                        />
+                      </FormGroup>
                     </div>
-                  </Col>
-                </Row>
-                <Row className="w-100">
+                    <Col sm={12}>
+                      <Button color="primary" className="mt-4 w-100" type="submit">
+                        Save
+                      </Button>
+                    </Col>
+                  </Row>
+                </Form>
+                {modalMessageVisible && (
+                  <ModalMaker
+                    modal={modalMessageVisible}
+                    toggle={() => setModalMessageVisible(false)}
+                    centered
+                    modalControls={
+                      <Button
+                        color="secondary"
+                        onClick={() => {
+                          setModalMessageVisible(false)
+                          navigate('/employees')
+                        }}
+                        className="px-3 w-100"
+                      >
+                        Ok
+                      </Button>
+                    }
+                  >
+                    {modalMessage}
+                  </ModalMaker>
+                )}
+              </div>
+            </Col>
+          </Row>
+          {/* <Row className="w-100">
                   <Col xl={6}>
                     <tr>
                       <td>
@@ -565,11 +566,7 @@ const EmployeeDetailsContent = () => {
                       </td>
                     </tr>
                   </Col>
-                </Row>
-              </div>
-            </TabPanel>
-            <TabPanel header="History"></TabPanel>
-          </TabView>
+                </Row> */}
         </div>
       </div>
     </div>

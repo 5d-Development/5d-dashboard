@@ -12,8 +12,13 @@ body {
   overflow-x: hidden !important;
   font-family: ' Mona Sans', sans-serif;
 }
+ 
 a {
   text-decoration: none !important;
+}
+ 
+.pointer{
+  cursor: pointer;
 }
 .wrapper {
   width: 100%;

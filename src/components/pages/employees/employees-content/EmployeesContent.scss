@@ -121,3 +121,24 @@ ol {
     }
   }
 }
+.employee-details-modal {
+  img {
+    width: 100px;
+    height: 100px;
+  }
+  .text-primary {
+    color: #721996 !important;
+  }
+  .title {
+    color: #6b7280;
+    font-weight: 500;
+  }
+  .edit {
+    position: relative !important;
+    bottom: 34px;
+    color: rgb(37 43 54 / 68%);
+  }
+  .text-dark {
+    color: #0c1713 !important;
+  }
+}

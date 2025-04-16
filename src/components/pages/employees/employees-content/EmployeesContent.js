@@ -1,5 +1,19 @@
 import React, { useEffect, useState } from 'react'
-import { Check, ChevronDown, MoveRight, Search } from 'lucide-react'
+import {
+  Backpack,
+  BadgeCheck,
+  CalendarCheck,
+  Check,
+  ChevronDown,
+  CircleDot,
+  Mail,
+  MoveRight,
+  Palmtree,
+  Pencil,
+  PhoneCall,
+  Search,
+  UserCog,
+} from 'lucide-react'
 import { MultiSelect } from 'primereact/multiselect'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
@@ -22,6 +36,7 @@ import check from '/assets/images/check.png'
 import errorIcon from '/assets/images/error.png'
 import employee from '/assets/images/employee.jpg'
 import { Loader, Pagination, ModalMaker } from '../../../ui'
+import EmployeeDetails from './../../employee-details/EmployeeDetails'
 import './EmployeesContent.scss'
 
 const Dashboard = () => {
@@ -50,12 +65,218 @@ const Dashboard = () => {
   const [modal, setModal] = useState(false)
   const [modalMessageVisible, setModalMessageVisible] = useState(false)
   const [modalMessage, setModalMessage] = useState(null)
+  const [employeeDetails, setEmployeeDetails] = useState(null)
+
   const toggle = () => setModal(!modal)
 
   const navigate = useNavigate()
 
   const handleRowClick = (employeeId) => {
-    navigate('/employee', { state: { employeeId } })
+    // navigate('/employee', { state: { employeeId } })
+
+    const fetchEmployeeDetails = async () => {
+      const authToken = localStorage.getItem('authToken') || sessionStorage.getItem('authToken')
+
+      if (!authToken) {
+        setModalMessageVisible(true)
+        setModalMessage(
+          <div className="d-flex flex-column align-items-center gap-4">
+            <img src={errorIcon} width={70} height={70} />
+            <h4> Oops! Please Login And Try Again</h4>
+          </div>,
+        )
+        return
+      }
+
+      try {
+        const res = await axios.get(
+          `http://attendance-service.5d-dev.com/api/Employee/GetEmployeeWithId?id=${employeeId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          },
+        )
+
+        const employeeData = res.data
+
+        const modalContent = (
+          <div className="employee-details-modal">
+            <Pencil
+              className="edit pointer "
+              size={20}
+              onClick={() => navigate('/employee', { state: { employeeId } })}
+            />
+
+            <div className="d-flex flex-column align-items-center gap-1 mb-4">
+              <img
+                className="img-thumbnail rounded-circle "
+                src={
+                  employeeData.imageUrl
+                    ? `http://attendance-service.5d-dev.com${employeeData.imageUrl}`
+                    : 'https://placehold.co/30x30'
+                }
+              />
+
+              <h4 className="text-primary mb-0">{employeeData.name}</h4>
+              <h6 className="title">{employeeData.jobTitle}</h6>
+            </div>
+            <Row>
+              <Col sm="6">
+                {' '}
+                <h6 className="title d-flex align-items-center gap-2 mb-3">
+                  <Mail size={20} />
+                  <span> Email</span>
+                </h6>
+              </Col>
+              <Col sm="6">
+                {' '}
+                <p className="mb-3 text-dark ">{employeeData.email}</p>
+              </Col>
+            </Row>
+            <Row>
+              <Col sm="6">
+                {' '}
+                <h6 className="title d-flex align-items-center gap-2 mb-3">
+                  <Backpack size={20} />
+                  <span> Department</span>
+                </h6>
+              </Col>
+              <Col sm="6">
+                {' '}
+                <p className="mb-3 text-dark ">{employeeData.department}</p>
+              </Col>
+            </Row>
+            <Row>
+              <Col sm="6">
+                {' '}
+                <h6 className="title d-flex align-items-center gap-2 mb-3">
+                  <CalendarCheck size={20} />
+                  <span> VacationBalance </span>
+                </h6>
+              </Col>
+              <Col sm="6">
+                {' '}
+                <p className="mb-3 text-dark ">{employeeData.normalVacationBalance}</p>
+              </Col>
+            </Row>
+            <Row>
+              <Col sm="6">
+                {' '}
+                <h6 className="title d-flex align-items-center gap-2 mb-3">
+                  <CalendarCheck size={20} />
+                  <span> incidental Balance </span>
+                </h6>
+              </Col>
+              <Col sm="6">
+                {' '}
+                <p className="mb-3 text-dark ">{employeeData.incidentalVacationBalance}</p>
+              </Col>
+            </Row>
+            <Row>
+              <Col sm="6">
+                {' '}
+                <h6 className="title d-flex align-items-center gap-2 mb-3">
+                  <UserCog size={20} />
+                  <span> managerName </span>
+                </h6>
+              </Col>
+              <Col sm="6">
+                {' '}
+                <p className="mb-3 text-dark ">{employeeData.managerName}</p>
+              </Col>
+            </Row>
+            <Row>
+              <Col sm="6">
+                {' '}
+                <h6 className="title d-flex align-items-center gap-2 mb-3">
+                  <PhoneCall size={20} />
+                  <span> mobileNumber </span>
+                </h6>
+              </Col>
+              <Col sm="6">
+                {' '}
+                <p className="mb-3 text-dark ">{employeeData.mobileNumber}</p>
+              </Col>
+            </Row>
+            <Row>
+              <Col sm="6">
+                {' '}
+                {employeeData.isActive && (
+                  <h6 className="title d-flex align-items-center gap-2 mb-3">
+                    <CircleDot size={20} />
+                    <span> IsActive </span>
+                  </h6>
+                )}
+              </Col>
+              <Col sm="6">
+                {employeeData.isActive && (
+                  <p className="mb-3">
+                    {employeeData.isActive ? (
+                      <Badge color="success">Active</Badge>
+                    ) : (
+                      <Badge severity="danger">Non Active</Badge>
+                    )}
+                  </p>
+                )}
+              </Col>
+            </Row>
+            <Row>
+              <Col sm="6">
+                {' '}
+                {employeeData.isPassedProbation || (
+                  <h6 className="title d-flex align-items-center gap-2 mb-3">
+                    <BadgeCheck size={22} />
+                    <span> Status </span>
+                  </h6>
+                )}
+              </Col>
+              <Col sm="6">
+                {' '}
+                {employeeData.isPassedProbation || (
+                  <p className="mb-3">
+                    {employeeData.isPassedProbation || <Badge color="danger">In Probation</Badge>}
+                  </p>
+                )}
+              </Col>
+            </Row>
+            <Row>
+              <Col sm="6">
+                {' '}
+                <h6 className="title d-flex align-items-center gap-2 mb-3">
+                  <Backpack size={22} />
+                  <span> Work From Home </span>
+                </h6>
+              </Col>
+              <Col sm="6">
+                {' '}
+                <p className="mb-3">
+                  {employeeData.isRemote ? (
+                    <Badge color="warning">Work From Home</Badge>
+                  ) : (
+                    <Badge color="success"> On Site </Badge>
+                  )}
+                </p>
+              </Col>
+            </Row>
+          </div>
+        )
+
+        setEmployeeDetails(res.data)
+
+        // Set modal after data is available
+        setModalMessage(modalContent)
+        setModalMessageVisible(true)
+      } catch (error) {
+        console.log(error)
+        setModalMessageVisible(true)
+        setModalMessage(<div>Error fetching employee details.</div>)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchEmployeeDetails()
   }
   useEffect(() => {
     // Fetch departments and managers
@@ -467,18 +688,19 @@ const Dashboard = () => {
             </ModalMaker>
             {modalMessageVisible && (
               <ModalMaker
+                size=" md"
                 modal={modalMessageVisible}
                 toggle={() => setModalMessageVisible(false)}
                 centered
-                modalControls={
-                  <Button
-                    color="secondary"
-                    onClick={() => setModalMessageVisible(false)}
-                    className="px-3 w-100"
-                  >
-                    Ok
-                  </Button>
-                }
+                // modalControls={
+                //   <Button
+                //     color="secondary"
+                //     onClick={() => setModalMessageVisible(false)}
+                //     className="px-3 w-100"
+                //   >
+                //     Ok
+                //   </Button>
+                // }
               >
                 {modalMessage}
               </ModalMaker>

@@ -507,18 +507,23 @@ const EmployeeDetailsContent = () => {
                         </span>{' '}
                       </td>
                     </tr>
-                    <tr>
-                      <td className="label-cell">
-                        {' '}
-                        <span className="fw-bold pe-4"> Is Passed Probation </span>
-                      </td>
-                      <td>
-                        :{' '}
-                        <span className="ps-3">
-                          {employee.isPassedProbation || <Badge color="danger">In Probation</Badge>}
-                        </span>{' '}
-                      </td>
-                    </tr>
+                    {employee.isPassedProbation || (
+                      <tr>
+                        <td className="label-cell">
+                          {' '}
+                          <span className="fw-bold pe-4"> Is Passed Probation </span>
+                        </td>
+                        <td>
+                          :{' '}
+                          <span className="ps-3">
+                            {employee.isPassedProbation || (
+                              <Badge color="danger">In Probation</Badge>
+                            )}
+                          </span>{' '}
+                        </td>
+                      </tr>
+                    )}
+
                     <tr>
                       <td className="label-cell">
                         {' '}

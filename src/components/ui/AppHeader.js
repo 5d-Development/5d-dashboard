@@ -23,7 +23,7 @@ const AppHeader = () => {
   useEffect(() => {
     document.addEventListener('scroll', () => {
       headerRef.current &&
-        headerRef.current.classList.toggle('shadow-sm', document.documentElement.scrollTop > 0)
+        headerRef.current.classList.toggle('', document.documentElement.scrollTop > 0)
     })
   }, [])
 

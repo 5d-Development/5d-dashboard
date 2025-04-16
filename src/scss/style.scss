@@ -24,7 +24,7 @@ a {
 
 .header > .container-fluid,
 .sidebar-header {
-  min-height: calc(4rem + 1px); // stylelint-disable-line function-disallowed-list
+  min-height: calc(4rem + 10px); // stylelint-disable-line function-disallowed-list
 }
 
 .sidebar-brand-full {
